@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kotlin z C i Pythona</title>
+  <meta name="description" content="Podstawy składni Kotlina dla osób znających C i Pythona — materiał do przedmiotu Programowanie obiektowe.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" media="(prefers-color-scheme: light)">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark">C · Py → <b>Kt</b></span>
+      <span class="brand-sub">Programowanie obiektowe</span>
+    </a>
+    <nav class="modes" aria-label="Tryb">
+      <a href="#/" data-mode="path">Ścieżka</a>
+      <a href="#/sciaga" data-mode="cheat">Ściąga</a>
+    </nav>
+    <div class="compare" role="group" aria-label="Porównuj z">
+      <span class="compare-label">Porównuj z:</span>
+      <button type="button" data-lang="c">C</button>
+      <button type="button" data-lang="py">Python</button>
+      <button type="button" data-lang="both">oba</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Lekcje">
+      <ol id="lesson-list"></ol>
+    </aside>
+    <main id="view" tabindex="-1"></main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://unpkg.com/kotlin-playground@1"></script>
+  <script>window.LESSONS = [];</script>
+  <script src="content/lessons/01-hello.js"></script>
+  <script src="content/lessons/02-var-val.js"></script>
+  <script src="content/lessons/03-types.js"></script>
+  <script src="content/lessons/04-functions.js"></script>
+  <script src="content/lessons/05-if-expression.js"></script>
+  <script src="content/lessons/06-strings.js"></script>
+  <script src="content/lessons/07-booleans.js"></script>
+  <script src="content/lessons/08-while.js"></script>
+  <script src="content/lessons/09-looping-ranges.js"></script>
+  <script src="content/lessons/10-in.js"></script>
+  <script src="content/lessons/11-when.js"></script>
+  <script src="content/lessons/12-lists.js"></script>
+  <script src="content/lessons/13-null.js"></script>
+  <script src="content/lessons/14-maps-sets.js"></script>
+  <script src="content/lessons/15-lambdas.js"></script>
+  <script src="content/lessons/16-input.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
