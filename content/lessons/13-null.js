@@ -1,6 +1,6 @@
 LESSONS.push({
     id: "null-safety",
-    title: "Null safety",
+    title: "Bezpieczeństwo null",
     atom: ["Nullable Types", "Safe Calls & the Elvis Operator", "Non-Null Assertions"],
     intro: "Tego mechanizmu nie ma ani w C, ani w Pythonie. Zwykła zmienna typu `Int` czy `String` nie może zawierać `null`. Gdy wartość może być pusta, typ ma znak zapytania (`Int?`), a kompilator nie pozwoli jej użyć bez sprawdzenia.",
     c: `#include <stdio.h>
@@ -59,7 +59,7 @@ fun main() {
     println("$a $b")
     // println(b + 1)            // błąd kompilacji: b może być null
     if (b != null) println(b + 1)   // tu b jest już typu Int
-    println(b?.plus(1))         // bezpieczne wywołanie: null zamiast błędu
+    println(b?.plus(1))         // Safe Call: null zamiast błędu
     println(b ?: -1)            // Elvis: wartość zastępcza
     val s: String? = null
     println(s?.length ?: 0)
@@ -76,8 +76,8 @@ null
 */`,
     changes: [
         "`String` nigdy nie jest `null`, `String?` może być. Przypisanie `null` do `String` to błąd kompilacji.",
-        "Po sprawdzeniu `if (x != null)` kompilator traktuje `x` w tym bloku jak typ bez `?` (smart cast).",
-        "`x?.metoda()` wywołuje metodę tylko wtedy, gdy `x` nie jest `null`; w przeciwnym razie całe wyrażenie daje `null`.",
+        "Po sprawdzeniu `if (x != null)` kompilator traktuje `x` w tym bloku jak typ bez `?` (inteligentne rzutowanie, smart cast).",
+        "`x?.metoda()` (Safe Call) wywołuje metodę tylko wtedy, gdy `x` nie jest `null`; w przeciwnym razie całe wyrażenie daje `null`.",
         "`x ?: domyślna` (operator Elvis) zwraca `x`, a gdy `x` jest `null` — wartość domyślną.",
         "Wiele funkcji ma wersję `...OrNull`: `toIntOrNull()`, `firstOrNull()`, `getOrNull(i)`. Zwracają `null` zamiast rzucać wyjątek."
     ],
@@ -109,10 +109,10 @@ null
         { from: "py", src: "if x is not None:", kt: "if (x != null)", note: "" },
         { from: "py", src: "x if x is not None else d", kt: "x ?: d", note: "operator Elvis" },
         { from: "c", src: "p ? p->len : 0", kt: "s?.length ?: 0", note: "" },
-        { from: "py", src: "x.y if x is not None else None", kt: "x?.y", note: "bezpieczne wywołanie" },
+        { from: "py", src: "x.y if x is not None else None", kt: "x?.y", note: "Safe Call" },
         { from: "py", src: "int(s)  w try/except", kt: "s.toIntOrNull()", note: "" },
         { from: "py", src: "lst[0] if lst else None", kt: "lst.firstOrNull()", note: "" },
         { from: "py", src: "assert x is not None", kt: "x!!", note: "unikaj" }
     ],
-    keywords: "null none nullable puste optional elvis ?: ?. !! smart cast toIntOrNull bezpieczne wywołanie NPE"
+    keywords: "null none nullable puste optional elvis ?: ?. !! smart cast inteligentne rzutowanie toIntOrNull bezpieczne wywołanie safe call bezpieczeństwo NPE"
 });
