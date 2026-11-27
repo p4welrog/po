@@ -2,7 +2,9 @@
   "use strict";
 
   const LESSONS = window.LESSONS || [];
-  const LANG_NAMES = { c: "C", py: "Python" };
+  const LANG_NAMES = { c: "C", py: "Python", java: "Java", cpp: "C++" };
+  const HL = { c: "c", py: "python", java: "java", cpp: "cpp" };
+  const isOop = l => l && l.track === "oop";
   const view = document.getElementById("view");
 
   // ---------- preferencje (tylko dla wygody, w przeglądarce studenta) ----------
@@ -82,9 +84,12 @@
 
   // ---------- nawigacja ----------
   function renderSidebar(activeId) {
-    document.getElementById("lesson-list").innerHTML = LESSONS.map(l =>
-      `<li><a href="#/lekcja/${l.id}" class="${l.id === activeId ? "active" : ""} ${done.has(l.id) ? "done" : ""}">${esc(l.title)}</a></li>`
-    ).join("");
+    const item = l =>
+      `<li><a href="#/lekcja/${l.id}" class="${l.id === activeId ? "active" : ""} ${done.has(l.id) ? "done" : ""}">${esc(l.title)}</a></li>`;
+    const syntax = LESSONS.filter(l => !isOop(l)), oop = LESSONS.filter(isOop);
+    document.getElementById("lesson-list").innerHTML =
+      `<li class="group">Składnia</li>${syntax.map(item).join("")}` +
+      (oop.length ? `<li class="group">Obiektowo</li>${oop.map(item).join("")}` : "");
   }
 
   function setMode(mode) {
@@ -101,14 +106,17 @@
     const l = LESSONS[idx];
     if (!l) { location.hash = "#/"; return; }
 
-    setMode("path");
+    const oop = isOop(l);
+    setMode(oop ? "oop" : "path");
+    document.body.classList.toggle("oop", oop);
     renderSidebar(id);
 
-    const shown = langsShown();
+    // lekcje obiektowe: Kotlin i Java obok siebie, C++ i Python w uzupełnieniach
+    const shown = oop ? ["java"] : langsShown();
     const srcPanels = shown.map(k => `
       <section class="panel ${k}">
-        <div class="panel-head"><span>${LANG_NAMES[k]}</span></div>
-        <pre><code class="language-${k === "c" ? "c" : "python"}">${esc(l[k])}</code></pre>
+        <div class="panel-head"><span>${LANG_NAMES[k]}</span>${oop ? `<span class="hint">to samo w Javie</span>` : ""}</div>
+        <pre><code class="language-${HL[k]}">${esc(l[k])}</code></pre>
       </section>`).join("");
 
     const runnable = l.runnable !== false;
@@ -118,23 +126,31 @@
         ${ktBlock(l.kt, runnable ? "" : "data-highlight-only")}
       </section>`;
 
-    const traps = l.traps.filter(t => shown.includes(t.from));
+    const traps = oop ? l.traps : l.traps.filter(t => shown.includes(t.from));
+    const extras = l.extras || [];
     const prev = LESSONS[idx - 1], next = LESSONS[idx + 1];
     const atoms = Array.isArray(l.atom) ? l.atom : (l.atom ? [l.atom] : []);
     const ex = l.exercise;
 
     view.innerHTML = `
       <h1>${esc(l.title)}</h1>
-      ${atoms.length ? `<p class="atom-ref">Atomic Kotlin: ${atoms.map(a => `„${esc(a)}”`).join(", ")}</p>` : `<p class="atom-ref">&nbsp;</p>`}
+      ${atoms.length || l.lecture ? `<p class="atom-ref">${l.lecture ? `Wykład ${esc(l.lecture)}${atoms.length ? " · " : ""}` : ""}${atoms.length ? `Atomic Kotlin: ${atoms.map(a => `„${esc(a)}”`).join(", ")}` : ""}</p>` : `<p class="atom-ref">&nbsp;</p>`}
       <p class="intro">${inline(l.intro)}</p>
 
-      <div class="compare-grid cols-${shown.length + 1}">${srcPanels}${ktPanel}</div>
+      <div class="compare-grid cols-${shown.length + 1}">${oop ? ktPanel + srcPanels : srcPanels + ktPanel}</div>
 
       <h2>Co się zmienia</h2>
       <ul class="changes">${l.changes.map(c => `<li>${inline(c)}</li>`).join("")}</ul>
 
       ${traps.length ? `<h2>Pułapki</h2>${traps.map(t =>
-        `<div class="trap"><span class="tag ${t.from}">z ${LANG_NAMES[t.from]}</span>${inline(t.text)}</div>`).join("")}` : ""}
+        `<div class="trap">${t.from ? `<span class="tag ${t.from}">z ${LANG_NAMES[t.from]}</span>` : ""}${inline(t.text)}</div>`).join("")}` : ""}
+
+      ${extras.length ? `<h2>Dla porównania</h2>${extras.map(x => `
+        <details class="extra ${x.lang}">
+          <summary><span class="tag ${x.lang}">${LANG_NAMES[x.lang]}</span>${inline(x.title)}</summary>
+          <p>${inline(x.text)}</p>
+          ${x.code ? `<pre><code class="language-${HL[x.lang]}">${esc(x.code)}</code></pre>` : ""}
+        </details>`).join("")}` : ""}
 
       ${ex ? `
       <h2>Spróbuj sam</h2>
@@ -156,7 +172,7 @@
 
       <nav class="lesson-nav">
         ${prev ? `<a href="#/lekcja/${prev.id}">← ${esc(prev.title)}</a>` : "<span></span>"}
-        ${next ? `<a href="#/lekcja/${next.id}">${esc(next.title)} →</a>` : `<a href="#/sciaga">Przejdź do ściągi →</a>`}
+        ${next ? `<a href="#/lekcja/${next.id}">${isOop(next) && !oop ? "Obiektowo: " : ""}${esc(next.title)} →</a>` : `<a href="#/sciaga">Przejdź do ściągi →</a>`}
       </nav>`;
 
     highlight(view);
@@ -190,10 +206,11 @@
 
   function renderCheat() {
     setMode("cheat");
+    document.body.classList.remove("oop");
     renderSidebar(null);
     view.innerHTML = `
       <h1>Ściąga</h1>
-      <p class="intro">Wpisz, co znasz z ${lang === "both" ? "C lub Pythona" : LANG_NAMES[lang]}, np. <code>range</code>, <code>printf</code>, <code>ternary</code>, <code>stała</code>.</p>
+      <p class="intro">Wpisz, co znasz z ${lang === "both" ? "C lub Pythona" : LANG_NAMES[lang]}, np. <code>range</code>, <code>printf</code>, <code>ternary</code>, <code>stała</code>. Wpisy z Javy (z lekcji obiektowych) są widoczne zawsze, np. <code>static</code>, <code>extends</code>.</p>
       <input class="search" id="search" type="search" placeholder="Szukaj…" autocomplete="off" value="${esc(lastSearch)}">
       <div class="cheat-count" id="cheat-count"></div>
       <div id="cheat-results"></div>`;
@@ -206,7 +223,7 @@
   function fillCheat() {
     const shown = langsShown();
     const words = norm(lastSearch).split(/\s+/).filter(Boolean);
-    const candidates = allCheats().filter(c => shown.includes(c.from));
+    const candidates = allCheats().filter(c => c.from === "java" || shown.includes(c.from));
     const matches = fields => c => words.every(w => norm(fields(c)).includes(w));
     // najpierw dopasowania w samych wpisach; słowa kluczowe lekcji tylko, gdy nic nie pasuje
     let rows = words.length ? candidates.filter(matches(c => [c.src, c.kt, c.note].join(" "))) : candidates;
@@ -232,6 +249,7 @@
     const h = location.hash;
     if (h.startsWith("#/lekcja/")) renderLesson(decodeURIComponent(h.slice(9)));
     else if (h === "#/sciaga") renderCheat();
+    else if (h === "#/obiektowo" && LESSONS.some(isOop)) renderLesson(LESSONS.find(isOop).id);
     else if (LESSONS.length) renderLesson(LESSONS[0].id);
     view.focus({ preventScroll: true });
     window.scrollTo(0, 0);

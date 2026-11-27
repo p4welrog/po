@@ -8,6 +8,8 @@
   --accent-soft: #efe9ff;
   --c: #4a6fa5;
   --py: #3b7a57;
+  --java: #b0611b;
+  --cpp: #00599c;
   --trap-bg: #fff4e5;
   --trap-line: #e8a33d;
   --ok: #2e7d4f;
@@ -20,14 +22,14 @@
   :root:not([data-theme="light"]) {
     --bg: #17171a; --surface: #202024; --ink: #ececec; --muted: #a3a3ab;
     --line: #34343a; --accent: #a98bff; --accent-soft: #2c2540;
-    --c: #8fb0e0; --py: #7cc49b; --trap-bg: #2f2616; --trap-line: #c98a2e;
+    --c: #8fb0e0; --py: #7cc49b; --java: #e8a060; --cpp: #6fa8dc; --trap-bg: #2f2616; --trap-line: #c98a2e;
     --ok: #6fcf97; --code-bg: #1a1a1d;
   }
 }
 :root[data-theme="dark"] {
   --bg: #17171a; --surface: #202024; --ink: #ececec; --muted: #a3a3ab;
   --line: #34343a; --accent: #a98bff; --accent-soft: #2c2540;
-  --c: #8fb0e0; --py: #7cc49b; --trap-bg: #2f2616; --trap-line: #c98a2e;
+  --c: #8fb0e0; --py: #7cc49b; --java: #e8a060; --cpp: #6fa8dc; --trap-bg: #2f2616; --trap-line: #c98a2e;
   --ok: #6fcf97; --code-bg: #1a1a1d;
 }
 
@@ -154,6 +156,26 @@ h2 { font-size: 1.15rem; margin: 36px 0 12px; }
 .cheat-table .lesson-link { font-size: .85rem; white-space: nowrap; }
 .empty { color: var(--muted); padding: 20px 0; }
 
+/* --- lekcje obiektowe --- */
+body.oop .compare { visibility: hidden; }
+.sidebar li.group {
+  counter-increment: none; font-size: .75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--muted); padding: 14px 10px 4px;
+}
+.sidebar li.group:first-child { padding-top: 0; }
+.panel.java .panel-head { color: var(--java); }
+.tag.java { color: var(--java); } .tag.cpp { color: var(--cpp); }
+.extra {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  margin: 10px 0; max-width: 90ch;
+}
+.extra summary { cursor: pointer; padding: 10px 14px; font-weight: 500; }
+.extra summary .tag { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-right: 8px; }
+.extra p { margin: 0; padding: 0 14px 10px; }
+.extra pre { margin: 0; padding: 12px 14px; background: var(--code-bg); border-top: 1px solid var(--line); overflow-x: auto; border-radius: 0 0 var(--radius) var(--radius); }
+.extra pre code { background: none; padding: 0; font-size: .82rem; line-height: 1.55; }
+.extra pre code.hljs { background: none; padding: 0; }
+
 /* --- responsywność --- */
 @media (max-width: 1100px) {
   .compare-grid.cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -166,6 +188,7 @@ h2 { font-size: 1.15rem; margin: 36px 0 12px; }
   .sidebar { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 16px; }
   .sidebar ol { display: flex; gap: 4px; overflow-x: auto; }
   .sidebar a { white-space: nowrap; }
+  .sidebar li.group { padding: 7px 6px 0 12px; white-space: nowrap; }
   main { padding: 20px 16px 60px; }
   .compare-grid.cols-2, .compare-grid.cols-3 { grid-template-columns: minmax(0, 1fr); }
   .cheat-table thead { display: none; }

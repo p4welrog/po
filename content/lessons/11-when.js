@@ -96,7 +96,7 @@ napis o długości 5
         "Kilka wartości oddziela się przecinkiem (`3, 4 ->`), zakres sprawdza się przez `in 5..7`, a typ przez `is String`.",
         "`when` bez argumentu to czytelny zamiennik długiego `if / else if`: każda gałąź to warunek logiczny.",
         "Gdy `when` zwraca wartość, gałąź `else` jest obowiązkowa (chyba że kompilator widzi, że wszystkie przypadki są obsłużone).",
-        "Po `is String` zmienna jest w tej gałęzi traktowana jako `String` (smart cast), więc `x.length` działa bez rzutowania."
+        "Po `is String` zmienna jest w tej gałęzi traktowana jako `String` (inteligentne rzutowanie, smart cast), więc `x.length` działa bez rzutowania."
     ],
     traps: [
         { from: "c", text: "Nie ma przechodzenia do następnego przypadku (fall-through) i nie piszesz `break`. Wspólne przypadki łączysz przecinkiem." },
