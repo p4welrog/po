@@ -5,29 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kotlin z C i Pythona</title>
   <meta name="description" content="Podstawy składni Kotlina dla osób znających C i Pythona oraz programowanie obiektowe w Kotlinie i Javie — materiał do przedmiotu Programowanie obiektowe.">
+  <script>
+    // motyw wybrany przez użytkownika (przed załadowaniem stylów, żeby nie mrugało)
+    try { var t = JSON.parse(localStorage.getItem("ktr:theme")); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" media="(prefers-color-scheme: light)">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="assets/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hl-light">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hl-dark" disabled>
+  <link rel="stylesheet" href="assets/style.css?v=4">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="#/">
-      <span class="brand-mark">C · Py → <b>Kt</b></span>
-      <span class="brand-sub">Programowanie obiektowe</span>
+      <span class="brand-logo" aria-hidden="true">K</span>
+      <span class="brand-text">
+        <span class="brand-mark">C · Py → Kt</span>
+        <span class="brand-sub">Programowanie obiektowe</span>
+      </span>
     </a>
     <nav class="modes" aria-label="Tryb">
       <a href="#/" data-mode="path">Ścieżka</a>
       <a href="#/obiektowo" data-mode="oop">Obiektowo</a>
       <a href="#/sciaga" data-mode="cheat">Ściąga</a>
     </nav>
-    <div class="compare" role="group" aria-label="Porównuj z">
-      <span class="compare-label">Porównuj z:</span>
-      <button type="button" data-lang="c">C</button>
-      <button type="button" data-lang="py">Python</button>
-      <button type="button" data-lang="both">oba</button>
+    <div class="topbar-right">
+      <div class="compare" role="group" aria-label="Porównuj z">
+        <span class="compare-label">Porównuj z:</span>
+        <button type="button" data-lang="c">C</button>
+        <button type="button" data-lang="py">Python</button>
+        <button type="button" data-lang="both">oba</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme-toggle" title="Jasny / ciemny motyw" aria-label="Przełącz motyw"></button>
     </div>
   </header>
 
@@ -41,32 +51,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://unpkg.com/kotlin-playground@1"></script>
   <script>window.LESSONS = [];</script>
-  <script src="content/lessons/01-hello.js"></script>
-  <script src="content/lessons/02-var-val.js"></script>
-  <script src="content/lessons/03-types.js"></script>
-  <script src="content/lessons/04-functions.js"></script>
-  <script src="content/lessons/05-if-expression.js"></script>
-  <script src="content/lessons/06-strings.js"></script>
-  <script src="content/lessons/07-booleans.js"></script>
-  <script src="content/lessons/08-while.js"></script>
-  <script src="content/lessons/09-looping-ranges.js"></script>
-  <script src="content/lessons/10-in.js"></script>
-  <script src="content/lessons/11-when.js"></script>
-  <script src="content/lessons/12-lists.js"></script>
-  <script src="content/lessons/13-null.js"></script>
-  <script src="content/lessons/14-maps-sets.js"></script>
-  <script src="content/lessons/15-lambdas.js"></script>
-  <script src="content/lessons/16-input.js"></script>
-  <script src="content/lessons/17-classes.js"></script>
-  <script src="content/lessons/18-constructors.js"></script>
-  <script src="content/lessons/19-visibility.js"></script>
-  <script src="content/lessons/20-exceptions.js"></script>
-  <script src="content/lessons/21-enums.js"></script>
-  <script src="content/lessons/22-data-classes.js"></script>
-  <script src="content/lessons/23-interfaces.js"></script>
-  <script src="content/lessons/24-inheritance.js"></script>
-  <script src="content/lessons/25-sealed.js"></script>
-  <script src="content/lessons/26-objects.js"></script>
-  <script src="assets/app.js"></script>
+  <script src="content/lessons/01-hello.js?v=4"></script>
+  <script src="content/lessons/02-var-val.js?v=4"></script>
+  <script src="content/lessons/03-types.js?v=4"></script>
+  <script src="content/lessons/04-functions.js?v=4"></script>
+  <script src="content/lessons/05-if-expression.js?v=4"></script>
+  <script src="content/lessons/06-strings.js?v=4"></script>
+  <script src="content/lessons/07-booleans.js?v=4"></script>
+  <script src="content/lessons/08-while.js?v=4"></script>
+  <script src="content/lessons/09-looping-ranges.js?v=4"></script>
+  <script src="content/lessons/10-in.js?v=4"></script>
+  <script src="content/lessons/11-when.js?v=4"></script>
+  <script src="content/lessons/12-lists.js?v=4"></script>
+  <script src="content/lessons/13-null.js?v=4"></script>
+  <script src="content/lessons/14-maps-sets.js?v=4"></script>
+  <script src="content/lessons/15-lambdas.js?v=4"></script>
+  <script src="content/lessons/16-input.js?v=4"></script>
+  <script src="content/lessons/17-classes.js?v=4"></script>
+  <script src="content/lessons/18-constructors.js?v=4"></script>
+  <script src="content/lessons/19-visibility.js?v=4"></script>
+  <script src="content/lessons/20-exceptions.js?v=4"></script>
+  <script src="content/lessons/21-enums.js?v=4"></script>
+  <script src="content/lessons/22-data-classes.js?v=4"></script>
+  <script src="content/lessons/23-interfaces.js?v=4"></script>
+  <script src="content/lessons/24-inheritance.js?v=4"></script>
+  <script src="content/lessons/25-sealed.js?v=4"></script>
+  <script src="content/lessons/26-objects.js?v=4"></script>
+  <script src="assets/app.js?v=4"></script>
 </body>
 </html>
