@@ -80,6 +80,50 @@
     document.querySelectorAll(".fs").forEach(e => { e.textContent = codeFs + "px"; });
     refreshEditors();
   };
+  // Pełny ekran: czcionka kodu i wyniku dopasowana do miejsca (rzutnik), A−/A+ dodaje poprawkę
+  let focusDelta = store.get("fsFocus", 0);
+  const stepFs = d => {
+    if (focus) { focusDelta = Math.max(-12, Math.min(24, focusDelta + d)); store.set("fsFocus", focusDelta); fitFocus(); }
+    else setFs(codeFs + d);
+  };
+  function visibleLines(box) {
+    const dom = box.querySelectorAll(".CodeMirror-line");
+    if (dom.length) return Array.from(dom, d => d.textContent);
+    const pre = box.querySelector("pre");
+    return pre ? pre.textContent.replace(/\n$/, "").split("\n") : [];
+  }
+  let fitted = 0;
+  function fitFocus() {
+    if (!focus) return;
+    const el = focus.el, bottom = el.getBoundingClientRect().bottom;
+    let boxes;
+    if (focus.kind === "code") {
+      boxes = Array.from(el.querySelectorAll(".compare-grid > .panel:not(.docked) .panel-body"))
+        .map(b => ({ b, extra: b.closest(".panel").dataset.key === "kt" ? 6 : 0 }));  // miejsce na wynik pod kodem
+    } else {
+      const area = el.querySelector(".code-area") || el.querySelector(".extra-code pre") || el.querySelector(".panel-body");
+      const below = area && area.closest(".executable-fragment") && getComputedStyle(area.closest(".executable-fragment")).display !== "grid";
+      boxes = area ? [{ b: area, extra: below ? 6 : 0 }] : [];
+    }
+    let fs = 40;
+    boxes.forEach(({ b, extra }) => {
+      const lines = visibleLines(b.closest(".panel, .editor-frame, .extra-code") || b);
+      if (!lines.length) return;
+      const r = b.getBoundingClientRect();
+      const w = r.width - 56, h = bottom - r.top - 40;
+      const maxLen = Math.max(24, ...lines.map(x => x.length));
+      const byWidth = w / (maxLen * 0.61), byHeight = h / ((lines.length + extra) * 1.6);
+      // najważniejsze, żeby wiersze się mieściły; długi kod może się przewijać w pionie, ale nie poniżej 16 px
+      fs = Math.min(fs, byHeight >= byWidth ? byWidth : Math.max(byHeight, Math.min(byWidth, 16)));
+    });
+    const auto = Math.max(12, Math.min(36, Math.floor(fs)));
+    const size = Math.max(10, Math.min(48, auto + focusDelta));
+    el.style.setProperty("--code-fs", size + "px");
+    el.querySelectorAll(".fs").forEach(e => { e.textContent = size + "px"; e.title = `dopasowane do ekranu: ${auto}px, poprawka: ${focusDelta > 0 ? "+" : ""}${focusDelta}`; });
+    if (size !== fitted) { fitted = size; refreshEditors(); }
+  }
+  window.addEventListener("resize", e => { if (e.isTrusted && focus) fitFocus(); });
+
   // CodeMirror w Playground musi przeliczyć wymiary po zmianie rozmiaru ramki lub czcionki
   function refreshEditors() {
     setTimeout(() => {
@@ -200,6 +244,7 @@
     backdrop.classList.add("on");
     document.body.classList.add("focus-open");
     layoutFocus();
+    setTimeout(fitFocus, 80);
     zone.querySelector(".btn-close").focus({ preventScroll: true });
   }
 
@@ -211,12 +256,17 @@
     document.body.classList.add("focus-open");
     box.querySelectorAll(".ex-max").forEach(b => { b.innerHTML = ICON.shrink; b.title = "Zamknij pełny ekran"; });
     refreshEditors();
+    setTimeout(fitFocus, 80);
+    setTimeout(fitFocus, 1200);      // edytor mógł się dopiero załadować
   }
 
   function closeFocus() {
     if (!focus) return;
     const el = focus.el;
     el.classList.remove("focus");
+    el.style.removeProperty("--code-fs");
+    el.querySelectorAll(".fs").forEach(e => { e.textContent = codeFs + "px"; e.title = ""; });
+    fitted = 0;
     el.querySelectorAll(".splitter").forEach(s => s.remove());
     el.querySelectorAll(".compare-grid > .panel").forEach(p => { p.style.flex = ""; p.classList.remove("docked"); });
     el.querySelectorAll(".ex-max").forEach(b => { b.innerHTML = ICON.expand; b.title = "Pełny ekran"; });
@@ -253,6 +303,7 @@
     zone.querySelectorAll("[data-ratio]").forEach(b =>
       b.classList.toggle("on", (b.dataset.ratio === "equal" && equal) || (b.dataset.ratio === "kt" && ktFocus)));
     refreshEditors();
+    setTimeout(fitFocus, 60);
   }
 
   function startDrag(e) {
@@ -463,7 +514,7 @@
         if (t.dataset.ratio === "kt" && n > 1) focus.weights.kt = 1.5 * (n - 1);
         layoutFocus();
       } else if (t.dataset.fs) {
-        setFs(codeFs + Number(t.dataset.fs));
+        stepFs(Number(t.dataset.fs));
       } else if (t.classList.contains("btn-close")) {
         closeFocus();
       }
@@ -474,7 +525,7 @@
       if (!t) return;
       if (t.classList.contains("ex-max")) focus && focus.el === box ? closeFocus() : openExerciseFocus(box);
       else if (t.classList.contains("btn-close")) closeFocus();
-      else if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+      else if (t.dataset.fs) stepFs(Number(t.dataset.fs));
       else if (t.dataset.act === "copy-x") copyFrom(t, extras[i].code);
     }));
 
@@ -485,7 +536,7 @@
         if (!t) return;
         if (t.classList.contains("ex-max")) focus && focus.el === box ? closeFocus() : openExerciseFocus(box);
         else if (t.classList.contains("btn-close")) closeFocus();
-        else if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+        else if (t.dataset.fs) stepFs(Number(t.dataset.fs));
         else if (t.dataset.act === "copy-ex") copyFrom(t, ex.starter);
       });
       document.getElementById("show-solution").addEventListener("click", e => {
@@ -577,7 +628,7 @@
       const t = ev.target.closest("button");
       if (!t) return;
       const box = t.closest(".example");
-      if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+      if (t.dataset.fs) stepFs(Number(t.dataset.fs));
       else if (t.classList.contains("btn-close")) closeFocus();
       else if (box && t.classList.contains("ex-max")) {
         if (focus && focus.el === box) closeFocus();
