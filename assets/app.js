@@ -541,9 +541,10 @@
       if (last && last.title === e.section) last.items.push(e); else sections.push({ title: e.section, lesson: e.lesson, items: [e] });
     });
     const runnable = w.examples.filter(e => e.mode !== "frag").length;
-    view.innerHTML = `
+    view.innerHTML = `<div class="lecture-root">
       <div class="lesson-meta"><span class="pill">Przykłady z wykładu ${esc(lname(w.id))}</span>
-        <span class="pill plain">${w.examples.length} przykładów · ${runnable} do uruchomienia</span></div>
+        <span class="pill plain">${w.examples.length} przykładów · ${runnable} do uruchomienia</span>
+        <span class="progress"><span class="seg-label">Czcionka kodu:</span>${fontSeg()}</span></div>
       <header class="lesson-head">
         <h1><span class="num">${esc(lname(w.id))}</span>${esc(sierotki(w.title))}</h1>
         <p class="intro">${inline("Kod ze slajdów wykładu, gotowy do uruchomienia i zmieniania. Na slajdzie kliknij ▶ przy przykładzie, żeby trafić prosto do niego. Gdy przykład korzysta z klas z wcześniejszych slajdów, są one ukryte nad kodem i rozwiniesz je przyciskiem w edytorze.")}</p>
@@ -553,18 +554,36 @@
           ${sec.lesson && LESSONS.some(l => l.id === sec.lesson) ? `<span class="h-side"><a class="btn small ghost" href="#/lekcja/${sec.lesson}">Lekcja: ${esc(LESSONS.find(l => l.id === sec.lesson).title)} →</a></span>` : ""}</h2>
         ${sec.items.map(e => `
           <section class="example panel kt ${e.mode}" id="ex-${e.n}">
+            <div class="focus-bar">
+              <div class="focus-title"><span class="num">#${e.n}</span>${inline(e.slide)}</div>
+              ${fontSeg()}
+              ${closeBtn}
+            </div>
             <div class="panel-head">
               <span class="badge kt">#${e.n}</span><span class="hint ex-slide">${inline(e.slide)}</span>
               ${MODE[e.mode][0] ? `<span class="pill plain">${MODE[e.mode][0]}</span>` : ""}
-              <div class="tools"><button type="button" class="tool" data-act="copy" title="Kopiuj kod">${ICON.copy}</button></div>
+              <div class="tools">
+                <button type="button" class="tool ex-max" title="Pełny ekran">${ICON.expand}</button>
+                <button type="button" class="tool" data-act="copy" title="Kopiuj kod">${ICON.copy}</button></div>
             </div>
             ${MODE[e.mode][1] ? `<p class="ex-note">${inline(MODE[e.mode][1])}</p>` : ""}
             <div class="panel-body">${ktBlock(e.code, e.mode === "frag" ? "data-highlight-only" : "")}</div>
-          </section>`).join("")}`).join("")}`;
+          </section>`).join("")}`).join("")}</div>`;
     view.querySelectorAll(".example [data-act=copy]").forEach(b => b.addEventListener("click", () => {
       const e = w.examples.find(x => "ex-" + x.n === b.closest(".example").id);
       copyFrom(b, e.code.replace(/^\/\/sample(Start|End)\n/gm, ""));
     }));
+    view.querySelector(".lecture-root").addEventListener("click", ev => {
+      const t = ev.target.closest("button");
+      if (!t) return;
+      const box = t.closest(".example");
+      if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+      else if (t.classList.contains("btn-close")) closeFocus();
+      else if (box && t.classList.contains("ex-max")) {
+        if (focus && focus.el === box) closeFocus();
+        else { mountPlaygrounds(box); openExerciseFocus(box); }
+      }
+    });
     mountLazy(view);
     if (n) {
       const el = document.getElementById("ex-" + n);
