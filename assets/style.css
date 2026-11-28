@@ -215,6 +215,7 @@ h2 {
   font-size: 1.12rem; letter-spacing: -.015em; margin: 40px 0 14px;
 }
 h2 .h-ico { color: var(--accent); display: inline-flex; }
+h2 .h-side .seg { text-transform: none; letter-spacing: 0; }
 h2 .h-side { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 
 /* ---------- przyciski ---------- */

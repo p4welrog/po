@@ -22,7 +22,9 @@
   };
   let lang = store.get("lang", "both");
   let done = new Set(store.get("done", []));
-  let codeFs = store.get("fs", 13);
+  // „fs2”: rozmiar kodu w zwykłym widoku. Stary klucz „fs” pomijamy – wcześniejsze wersje
+  // zapisywały w nim też powiększenie z pełnego ekranu (do 22 px).
+  let codeFs = Math.max(11, Math.min(18, store.get("fs2", 13)));
   let lastSearch = "";
   let cheatTrack = "all";
 
@@ -87,8 +89,8 @@
     i % 2 ? `<code>${esc(part)}</code>` : esc(sierotki(part))).join("");
   const langsShown = () => (lang === "both" ? ["c", "py"] : [lang]);
   const setFs = v => {
-    codeFs = Math.max(11, Math.min(22, v));
-    store.set("fs", codeFs);
+    codeFs = Math.max(11, Math.min(18, v));
+    store.set("fs2", codeFs);
     document.documentElement.style.setProperty("--code-fs", codeFs + "px");
     document.querySelectorAll(".fs").forEach(e => { e.textContent = codeFs + "px"; });
     refreshEditors();
@@ -426,7 +428,7 @@
 
       <section class="code-zone" id="code-zone">
         <h2><span class="h-ico">${ICON.compare}</span>Porównanie kodu
-          <span class="h-side"><button type="button" class="btn small ghost" data-act="focus" title="Pokaż kod na całym ekranie">${ICON.expand}Pełny ekran</button></span></h2>
+          <span class="h-side">${fontSeg()}<button type="button" class="btn small ghost" data-act="focus" title="Pokaż kod na całym ekranie">${ICON.expand}Pełny ekran</button></span></h2>
         <div class="focus-bar">
           <div class="focus-title"><span class="num">${num}</span>${esc(l.title)}</div>
           <div class="seg"><span class="seg-label">Widok:</span>${viewBtns}</div>
