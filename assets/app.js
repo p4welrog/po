@@ -298,7 +298,7 @@
     const order = oop ? ["kt", "java"] : [...shown, "kt"];
     const runnable = l.runnable !== false;
     const hint = { java: "to samo w Javie", kt: runnable ? "kod można edytować" : "uruchom w IntelliJ" };
-    const pairTitle = k => k === "kt" ? "Powiększ: tylko Kotlin" : `Powiększ: ${LANG_NAMES[k]} + Kotlin`;
+    const pairTitle = k => `Powiększ: tylko ${LANG_NAMES[k]}`;
     const panel = k => `
       <section class="panel ${k}" data-key="${k}">
         <div class="panel-head">
@@ -320,7 +320,7 @@
     const views = [];
     if (srcKeys.length > 1) views.push([order, "Wszystkie"]);
     srcKeys.forEach(k => views.push([order.filter(x => x === k || x === "kt"), `${LANG_NAMES[k]} + Kotlin`]));
-    views.push([["kt"], "Tylko Kotlin"]);
+    order.forEach(k => views.push([[k], `Tylko ${LANG_NAMES[k]}`]));
     const viewBtns = views.map(([ks, label]) => `<button type="button" data-view="${ks.join(",")}">${label}</button>`).join("");
 
     const traps = oop ? l.traps : l.traps.filter(t => shown.includes(t.from));
@@ -365,8 +365,20 @@
       ${extras.length ? `<h2><span class="h-ico">${ICON.layers}</span>Dla porównania</h2>${extras.map(x => `
         <details class="extra ${x.lang}">
           <summary><span class="badge ${x.lang}">${LANG_NAMES[x.lang]}</span>${inline(x.title)}</summary>
-          <p>${inline(x.text)}</p>
-          ${x.code ? `<pre><code class="language-${HL[x.lang]}">${esc(x.code)}</code></pre>` : ""}
+          <div class="extra-box">
+          <div class="focus-bar">
+            <div class="focus-title"><span class="badge ${x.lang}">${LANG_NAMES[x.lang]}</span>${inline(x.title)}</div>
+            ${fontSeg()}
+            ${closeBtn}
+          </div>
+          <div class="ex-body">
+            <p>${inline(x.text)}</p>
+            ${x.code ? `<div class="extra-code"><div class="tools">
+                <button type="button" class="tool ex-max" title="Pełny ekran">${ICON.expand}</button>
+                <button type="button" class="tool" data-act="copy-x" title="Kopiuj kod">${ICON.copy}</button></div>
+              <pre><code class="language-${HL[x.lang]}">${esc(x.code)}</code></pre></div>` : ""}
+          </div>
+          </div>
         </details>`).join("")}` : ""}
 
       ${ex ? `
@@ -418,7 +430,7 @@
       } else if (t.dataset.act === "focus") {
         openCodeFocus(zone);
       } else if (t.dataset.act === "max") {
-        const ks = p.dataset.key === "kt" ? ["kt"] : [p.dataset.key, "kt"];
+        const ks = [p.dataset.key];
         if (focus) { focus.visible = new Set(ks); layoutFocus(); } else openCodeFocus(zone, ks);
       } else if (t.dataset.act === "copy") {
         copyFrom(t, p.dataset.key === "kt" ? l.kt : l[p.dataset.key]);
@@ -435,6 +447,15 @@
         closeFocus();
       }
     });
+
+    view.querySelectorAll(".extra-box").forEach((box, i) => box.addEventListener("click", e => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.classList.contains("ex-max")) focus && focus.el === box ? closeFocus() : openExerciseFocus(box);
+      else if (t.classList.contains("btn-close")) closeFocus();
+      else if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+      else if (t.dataset.act === "copy-x") copyFrom(t, extras[i].code);
+    }));
 
     if (ex) {
       const box = document.getElementById("exercise");
