@@ -63,8 +63,13 @@
   // ---------- pomocnicze ----------
   const esc = s => String(s).replace(/[&<>"']/g, ch =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-  // `kod` -> <code>kod</code>, reszta escapowana
-  const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+  // polska typografia: jednoliterowy spójnik lub przyimek nie zostaje na końcu wiersza
+  // (dwa przebiegi, bo sąsiednie spójniki, np. „i w domu”, dzielą spację)
+  const SIEROTKA = /(^|[\s(„"])([aiouwzAIOUWZ]) +/g;
+  const sierotki = s => s.replace(SIEROTKA, "$1$2\u00a0").replace(SIEROTKA, "$1$2\u00a0");
+  // `kod` -> <code>kod</code>, reszta escapowana; twarde spacje tylko poza kodem
+  const inline = s => String(s).split("`").map((part, i) =>
+    i % 2 ? `<code>${esc(part)}</code>` : esc(sierotki(part))).join("");
   const langsShown = () => (lang === "both" ? ["c", "py"] : [lang]);
   const setFs = v => {
     codeFs = Math.max(11, Math.min(22, v));
@@ -211,6 +216,7 @@
     el.querySelectorAll(".splitter").forEach(s => s.remove());
     el.querySelectorAll(".compare-grid > .panel").forEach(p => { p.style.flex = ""; p.classList.remove("docked"); });
     el.querySelectorAll(".ex-max").forEach(b => { b.innerHTML = ICON.expand; b.title = "Pełny ekran"; });
+    el.querySelectorAll('[data-act="max"]').forEach(b => { b.innerHTML = ICON.expand; b.title = `Powiększ: tylko ${LANG_NAMES[b.closest(".panel").dataset.key]}`; });
     backdrop.classList.remove("on");
     document.body.classList.remove("focus-open");
     focus = null;
@@ -229,6 +235,11 @@
     zone.querySelectorAll(".splitter").forEach(s => {
       const a = s.previousElementSibling, b = s.nextElementSibling;
       s.classList.toggle("off", a.classList.contains("docked") || b.classList.contains("docked"));
+    });
+    panels.forEach(p => {
+      const b = p.querySelector('[data-act="max"]'), solo = focus.visible.size === 1 && focus.visible.has(p.dataset.key);
+      b.innerHTML = solo ? ICON.shrink : ICON.expand;
+      b.title = solo ? "Przywróć poprzednią wielkość" : `Powiększ: tylko ${LANG_NAMES[p.dataset.key]}`;
     });
     const vis = focus.keys.filter(k => focus.visible.has(k)).join(",");
     zone.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === vis));
@@ -298,7 +309,7 @@
     const order = oop ? ["kt", "java"] : [...shown, "kt"];
     const runnable = l.runnable !== false;
     const hint = { java: "to samo w Javie", kt: runnable ? "kod można edytować" : "uruchom w IntelliJ" };
-    const pairTitle = k => k === "kt" ? "Powiększ: tylko Kotlin" : `Powiększ: ${LANG_NAMES[k]} + Kotlin`;
+    const pairTitle = k => `Powiększ: tylko ${LANG_NAMES[k]}`;
     const panel = k => `
       <section class="panel ${k}" data-key="${k}">
         <div class="panel-head">
@@ -320,7 +331,7 @@
     const views = [];
     if (srcKeys.length > 1) views.push([order, "Wszystkie"]);
     srcKeys.forEach(k => views.push([order.filter(x => x === k || x === "kt"), `${LANG_NAMES[k]} + Kotlin`]));
-    views.push([["kt"], "Tylko Kotlin"]);
+    order.forEach(k => views.push([[k], `Tylko ${LANG_NAMES[k]}`]));
     const viewBtns = views.map(([ks, label]) => `<button type="button" data-view="${ks.join(",")}">${label}</button>`).join("");
 
     const traps = oop ? l.traps : l.traps.filter(t => shown.includes(t.from));
@@ -338,7 +349,7 @@
           <span class="progress-bar"><span style="width:${Math.round(100 * done.size / LESSONS.length)}%"></span></span></span>
       </div>
       <header class="lesson-head">
-        <h1><span class="num">${num}</span>${esc(l.title)}</h1>
+        <h1><span class="num">${num}</span>${esc(sierotki(l.title))}</h1>
         ${atoms.length ? `<div class="refs"><span class="label">Atomic Kotlin:</span>${atoms.map(a => `<span class="ref-chip">„${esc(a)}”</span>`).join("")}</div>` : ""}
         <p class="intro">${inline(l.intro)}</p>
       </header>
@@ -365,8 +376,20 @@
       ${extras.length ? `<h2><span class="h-ico">${ICON.layers}</span>Dla porównania</h2>${extras.map(x => `
         <details class="extra ${x.lang}">
           <summary><span class="badge ${x.lang}">${LANG_NAMES[x.lang]}</span>${inline(x.title)}</summary>
-          <p>${inline(x.text)}</p>
-          ${x.code ? `<pre><code class="language-${HL[x.lang]}">${esc(x.code)}</code></pre>` : ""}
+          <div class="extra-box">
+          <div class="focus-bar">
+            <div class="focus-title"><span class="badge ${x.lang}">${LANG_NAMES[x.lang]}</span>${inline(x.title)}</div>
+            ${fontSeg()}
+            ${closeBtn}
+          </div>
+          <div class="ex-body">
+            <p>${inline(x.text)}</p>
+            ${x.code ? `<div class="extra-code"><div class="tools">
+                <button type="button" class="tool ex-max" title="Pełny ekran">${ICON.expand}</button>
+                <button type="button" class="tool" data-act="copy-x" title="Kopiuj kod">${ICON.copy}</button></div>
+              <pre><code class="language-${HL[x.lang]}">${esc(x.code)}</code></pre></div>` : ""}
+          </div>
+          </div>
         </details>`).join("")}` : ""}
 
       ${ex ? `
@@ -414,16 +437,22 @@
       if (!t) return;
       const p = t.closest(".panel");
       if (t.classList.contains("dock-label")) {
-        focus.visible.add(p.dataset.key); layoutFocus();
+        focus.prevVisible = null; focus.visible.add(p.dataset.key); layoutFocus();
       } else if (t.dataset.act === "focus") {
         openCodeFocus(zone);
       } else if (t.dataset.act === "max") {
-        const ks = p.dataset.key === "kt" ? ["kt"] : [p.dataset.key, "kt"];
-        if (focus) { focus.visible = new Set(ks); layoutFocus(); } else openCodeFocus(zone, ks);
+        const k = p.dataset.key;
+        const solo = focus && focus.visible.size === 1 && focus.visible.has(k);
+        if (solo) {                                   // drugie kliknięcie: powrót do poprzedniej wielkości
+          if (focus.prevVisible) { focus.visible = focus.prevVisible; focus.prevVisible = null; layoutFocus(); }
+          else closeFocus();
+        } else if (focus) {
+          focus.prevVisible = new Set(focus.visible); focus.visible = new Set([k]); layoutFocus();
+        } else openCodeFocus(zone, [k]);
       } else if (t.dataset.act === "copy") {
         copyFrom(t, p.dataset.key === "kt" ? l.kt : l[p.dataset.key]);
       } else if (t.dataset.view) {
-        focus.visible = new Set(t.dataset.view.split(",")); layoutFocus();
+        focus.prevVisible = null; focus.visible = new Set(t.dataset.view.split(",")); layoutFocus();
       } else if (t.dataset.ratio) {
         const n = focus.visible.size;
         focus.keys.forEach(k => { focus.weights[k] = 1; });
@@ -435,6 +464,15 @@
         closeFocus();
       }
     });
+
+    view.querySelectorAll(".extra-box").forEach((box, i) => box.addEventListener("click", e => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.classList.contains("ex-max")) focus && focus.el === box ? closeFocus() : openExerciseFocus(box);
+      else if (t.classList.contains("btn-close")) closeFocus();
+      else if (t.dataset.fs) setFs(codeFs + Number(t.dataset.fs));
+      else if (t.dataset.act === "copy-x") copyFrom(t, extras[i].code);
+    }));
 
     if (ex) {
       const box = document.getElementById("exercise");
