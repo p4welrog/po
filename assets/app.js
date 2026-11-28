@@ -119,6 +119,7 @@
     const auto = Math.max(12, Math.min(36, Math.floor(fs)));
     const size = Math.max(10, Math.min(48, auto + focusDelta));
     el.style.setProperty("--code-fs", size + "px");
+    document.documentElement.style.setProperty("--hint-fs", size + "px");   // lista podpowiedzi jest poza ramką
     el.querySelectorAll(".fs").forEach(e => { e.textContent = size + "px"; e.title = `dopasowane do ekranu: ${auto}px, poprawka: ${focusDelta > 0 ? "+" : ""}${focusDelta}`; });
     if (size !== fitted) { fitted = size; refreshEditors(); }
   }
@@ -134,7 +135,7 @@
 
   function ktBlock(code, extraAttrs) {
     return `<div class="kt-host"><div class="kt-run" theme="${isDark() ? "darcula" : "idea"}" ` +
-      `match-brackets="true" auto-indent="true" ${extraAttrs || ""}>${esc(code)}</div></div>`;
+      `match-brackets="true" auto-indent="true" data-autocomplete="true" ${extraAttrs || ""}>${esc(code)}</div></div>`;
   }
 
   // Fallback: Playground niedostępny (offline, błąd) — pokaż kod statycznie z kolorowaniem
@@ -265,6 +266,7 @@
     const el = focus.el;
     el.classList.remove("focus");
     el.style.removeProperty("--code-fs");
+    document.documentElement.style.removeProperty("--hint-fs");
     el.querySelectorAll(".fs").forEach(e => { e.textContent = codeFs + "px"; e.title = ""; });
     fitted = 0;
     el.querySelectorAll(".splitter").forEach(s => s.remove());
@@ -363,7 +365,7 @@
     const shown = oop ? ["java"] : langsShown();
     const order = oop ? ["kt", "java"] : [...shown, "kt"];
     const runnable = l.runnable !== false;
-    const hint = { java: "to samo w Javie", kt: runnable ? "kod można edytować" : "uruchom w IntelliJ" };
+    const hint = { java: "to samo w Javie", kt: runnable ? "kod można edytować · podpowiedzi: Ctrl+Spacja" : "uruchom w IntelliJ" };
     const pairTitle = k => `Powiększ: tylko ${LANG_NAMES[k]}`;
     const panel = k => `
       <section class="panel ${k}" data-key="${k}">
@@ -598,7 +600,7 @@
         <span class="progress"><span class="seg-label">Czcionka kodu:</span>${fontSeg()}</span></div>
       <header class="lesson-head">
         <h1><span class="num">${esc(lname(w.id))}</span>${esc(sierotki(w.title))}</h1>
-        <p class="intro">${inline("Kod ze slajdów wykładu, gotowy do uruchomienia i zmieniania. Na slajdzie kliknij ▶ przy przykładzie, żeby trafić prosto do niego. Gdy przykład korzysta z klas z wcześniejszych slajdów, są one ukryte nad kodem i rozwiniesz je przyciskiem w edytorze.")}</p>
+        <p class="intro">${inline("Kod ze slajdów wykładu, gotowy do uruchomienia i zmieniania. Na slajdzie kliknij ▶ przy przykładzie, żeby trafić prosto do niego. Gdy przykład korzysta z klas z wcześniejszych slajdów, są one ukryte nad kodem i rozwiniesz je przyciskiem w edytorze. Podczas pisania edytor podpowiada nazwy (także Ctrl+Spacja).")}</p>
       </header>
       ${sections.map(sec => `
         <h2><span class="h-ico">${ICON.code}</span>${esc(sec.title)}
