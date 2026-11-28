@@ -54,6 +54,19 @@
     b.innerHTML = dark ? ICON.sun : ICON.moon;
     b.title = dark ? "Jasny motyw" : "Ciemny motyw";
   }
+  // ---------- pomoc ----------
+  const help = document.getElementById("help");
+  const openHelp = () => { help.hidden = false; document.body.classList.add("help-open"); document.getElementById("help-close").focus(); };
+  const closeHelp = () => { help.hidden = true; document.body.classList.remove("help-open"); };
+  document.getElementById("help-btn").addEventListener("click", openHelp);
+  document.getElementById("help-close").addEventListener("click", closeHelp);
+  help.addEventListener("click", e => { if (e.target === help) closeHelp(); });
+  document.addEventListener("keydown", e => {
+    if (!help.hidden && e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); closeHelp(); return; }
+    const t = e.target, typing = t.closest && t.closest("input, textarea, [contenteditable], .CodeMirror");
+    if (e.key === "?" && !typing && !e.metaKey && !e.ctrlKey) { e.preventDefault(); help.hidden ? openHelp() : closeHelp(); }
+  }, true);
+
   document.getElementById("theme-toggle").addEventListener("click", () => {
     const t = isDark() ? "light" : "dark";
     document.documentElement.dataset.theme = t;
