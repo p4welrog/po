@@ -3,6 +3,7 @@
 
   const LESSONS = window.LESSONS || [];
   const WYKLADY = window.WYKLADY || [];
+  const lname = id => id.replace("_cd", " (cd.)");
   const LANG_NAMES = { c: "C", py: "Python", java: "Java", cpp: "C++", kt: "Kotlin" };
   const HL = { c: "c", py: "python", java: "java", cpp: "cpp" };
   const isOop = l => l && l.track === "oop";
@@ -160,7 +161,7 @@
       `<li class="group">Składnia <small>${count(syntax.length)}</small></li>${syntax.map(item).join("")}` +
       (oop.length ? `<li class="group">Obiektowo <small>${count(oop.length)}</small></li>${oop.map(item).join("")}` : "") +
       (WYKLADY.length ? `<li class="group">Przykłady z wykładów</li>` + WYKLADY.map(w =>
-        `<li><a href="#/wyklad/${w.id}" class="${activeId === "wyklad:" + w.id ? "active" : ""}"><span class="num">${esc(w.id)}</span><span>Wykład ${esc(w.id)}</span></a></li>`).join("") : "");
+        `<li><a href="#/wyklad/${w.id}" class="${activeId === "wyklad:" + w.id ? "active" : ""}"><span class="num">${esc(w.id.replace("_cd", "+"))}</span><span>Wykład ${esc(lname(w.id))}</span></a></li>`).join("") : "");
     const a = document.querySelector(".sidebar a.active");
     if (a && a.scrollIntoView && window.innerWidth > 860) a.scrollIntoView({ block: "nearest" });
   }
@@ -541,10 +542,10 @@
     });
     const runnable = w.examples.filter(e => e.mode !== "frag").length;
     view.innerHTML = `
-      <div class="lesson-meta"><span class="pill">Przykłady z wykładu ${esc(w.id)}</span>
+      <div class="lesson-meta"><span class="pill">Przykłady z wykładu ${esc(lname(w.id))}</span>
         <span class="pill plain">${w.examples.length} przykładów · ${runnable} do uruchomienia</span></div>
       <header class="lesson-head">
-        <h1><span class="num">${esc(w.id)}</span>${esc(sierotki(w.title))}</h1>
+        <h1><span class="num">${esc(lname(w.id))}</span>${esc(sierotki(w.title))}</h1>
         <p class="intro">${inline("Kod ze slajdów wykładu, gotowy do uruchomienia i zmieniania. Na slajdzie kliknij ▶ przy przykładzie, żeby trafić prosto do niego. Gdy przykład korzysta z klas z wcześniejszych slajdów, są one ukryte nad kodem i rozwiniesz je przyciskiem w edytorze.")}</p>
       </header>
       ${sections.map(sec => `
