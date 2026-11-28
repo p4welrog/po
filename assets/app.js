@@ -2,6 +2,7 @@
   "use strict";
 
   const LESSONS = window.LESSONS || [];
+  const WYKLADY = window.WYKLADY || [];
   const LANG_NAMES = { c: "C", py: "Python", java: "Java", cpp: "C++", kt: "Kotlin" };
   const HL = { c: "c", py: "python", java: "java", cpp: "cpp" };
   const isOop = l => l && l.track === "oop";
@@ -157,7 +158,9 @@
     const count = n => `${n} ${n === 1 ? "lekcja" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? "lekcje" : "lekcji"}`;
     document.getElementById("lesson-list").innerHTML =
       `<li class="group">Składnia <small>${count(syntax.length)}</small></li>${syntax.map(item).join("")}` +
-      (oop.length ? `<li class="group">Obiektowo <small>${count(oop.length)}</small></li>${oop.map(item).join("")}` : "");
+      (oop.length ? `<li class="group">Obiektowo <small>${count(oop.length)}</small></li>${oop.map(item).join("")}` : "") +
+      (WYKLADY.length ? `<li class="group">Przykłady z wykładów</li>` + WYKLADY.map(w =>
+        `<li><a href="#/wyklad/${w.id}" class="${activeId === "wyklad:" + w.id ? "active" : ""}"><span class="num">${esc(w.id)}</span><span>Wykład ${esc(w.id)}</span></a></li>`).join("") : "");
     const a = document.querySelector(".sidebar a.active");
     if (a && a.scrollIntoView && window.innerWidth > 860) a.scrollIntoView({ block: "nearest" });
   }
@@ -504,6 +507,76 @@
     });
   }
 
+  // ---------- przykłady z wykładów ----------
+  const MODE = {
+    run: ["", ""],
+    wrap: ["main dopisany", "Kod ze slajdu jest wstawiony do funkcji `main()`, żeby dało się go uruchomić."],
+    split: ["main dopisany", "Na końcu dopisano funkcję `main()` z instrukcjami ze slajdu."],
+    decl: ["same deklaracje", "Slajd zawiera same deklaracje. Wypróbuj je w dopisanej na końcu funkcji `main()`."],
+    frag: ["fragment", "Fragment, który zakłada kod spoza slajdu, więc nie uruchomi się samodzielnie."]
+  };
+
+  // Playground ładowany dopiero, gdy przykład zbliża się do ekranu (na stronie jest ich kilkadziesiąt)
+  let lazyObs = null;
+  function mountLazy(root) {
+    if (lazyObs) lazyObs.disconnect();
+    if (!("IntersectionObserver" in window)) { mountPlaygrounds(root); return; }
+    lazyObs = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { lazyObs.unobserve(e.target); mountPlaygrounds(e.target); }
+    }), { rootMargin: "600px 0px" });
+    root.querySelectorAll(".example").forEach(el => lazyObs.observe(el));
+  }
+
+  function renderLecture(id, n) {
+    closeFocus();
+    const w = WYKLADY.find(x => x.id === id);
+    if (!w) { location.hash = "#/"; return; }
+    setMode("lecture");
+    document.body.classList.remove("oop");
+    renderSidebar("wyklad:" + id);
+    const sections = [];
+    w.examples.forEach(e => {
+      const last = sections[sections.length - 1];
+      if (last && last.title === e.section) last.items.push(e); else sections.push({ title: e.section, lesson: e.lesson, items: [e] });
+    });
+    const runnable = w.examples.filter(e => e.mode !== "frag").length;
+    view.innerHTML = `
+      <div class="lesson-meta"><span class="pill">Przykłady z wykładu ${esc(w.id)}</span>
+        <span class="pill plain">${w.examples.length} przykładów · ${runnable} do uruchomienia</span></div>
+      <header class="lesson-head">
+        <h1><span class="num">${esc(w.id)}</span>${esc(sierotki(w.title))}</h1>
+        <p class="intro">${inline("Kod ze slajdów wykładu, gotowy do uruchomienia i zmieniania. Na slajdzie kliknij ▶ przy przykładzie, żeby trafić prosto do niego. Gdy przykład korzysta z klas z wcześniejszych slajdów, są one ukryte nad kodem i rozwiniesz je przyciskiem w edytorze.")}</p>
+      </header>
+      ${sections.map(sec => `
+        <h2><span class="h-ico">${ICON.code}</span>${esc(sec.title)}
+          ${sec.lesson && LESSONS.some(l => l.id === sec.lesson) ? `<span class="h-side"><a class="btn small ghost" href="#/lekcja/${sec.lesson}">Lekcja: ${esc(LESSONS.find(l => l.id === sec.lesson).title)} →</a></span>` : ""}</h2>
+        ${sec.items.map(e => `
+          <section class="example panel kt ${e.mode}" id="ex-${e.n}">
+            <div class="panel-head">
+              <span class="badge kt">#${e.n}</span><span class="hint ex-slide">${inline(e.slide)}</span>
+              ${MODE[e.mode][0] ? `<span class="pill plain">${MODE[e.mode][0]}</span>` : ""}
+              <div class="tools"><button type="button" class="tool" data-act="copy" title="Kopiuj kod">${ICON.copy}</button></div>
+            </div>
+            ${MODE[e.mode][1] ? `<p class="ex-note">${inline(MODE[e.mode][1])}</p>` : ""}
+            <div class="panel-body">${ktBlock(e.code, e.mode === "frag" ? "data-highlight-only" : "")}</div>
+          </section>`).join("")}`).join("")}`;
+    view.querySelectorAll(".example [data-act=copy]").forEach(b => b.addEventListener("click", () => {
+      const e = w.examples.find(x => "ex-" + x.n === b.closest(".example").id);
+      copyFrom(b, e.code.replace(/^\/\/sample(Start|End)\n/gm, ""));
+    }));
+    mountLazy(view);
+    if (n) {
+      const el = document.getElementById("ex-" + n);
+      if (el) {
+        mountPlaygrounds(el);
+        el.classList.add("target");
+        // ponownie po załadowaniu edytorów powyżej (zmieniają wysokość strony)
+        [50, 900, 2000].forEach(t => setTimeout(() => { if (location.hash.endsWith("/" + n)) el.scrollIntoView({ block: "start" }); }, t));
+        return true;
+      }
+    }
+  }
+
   // ---------- ściąga ----------
   const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
@@ -579,6 +652,10 @@
     if (h.startsWith("#/lekcja/")) renderLesson(decodeURIComponent(h.slice(9)));
     else if (h === "#/sciaga") renderCheat();
     else if (h === "#/obiektowo" && LESSONS.some(isOop)) renderLesson(LESSONS.find(isOop).id);
+    else if (h.startsWith("#/wyklad/")) {
+      const [id, n] = decodeURIComponent(h.slice(9)).split("/");
+      if (renderLecture(id, n)) { view.focus({ preventScroll: true }); return; }
+    }
     else if (LESSONS.length) renderLesson(LESSONS[0].id);
     view.focus({ preventScroll: true });
     window.scrollTo(0, 0);
