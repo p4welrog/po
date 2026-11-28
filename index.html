@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hl-light">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hl-dark" disabled>
-  <link rel="stylesheet" href="assets/style.css?v=13">
+  <link rel="stylesheet" href="assets/style.css?v=14">
 </head>
 <body>
   <header class="topbar">
@@ -37,9 +37,64 @@
         <button type="button" data-lang="py">Python</button>
         <button type="button" data-lang="both">oba</button>
       </div>
+      <button type="button" class="icon-btn" id="help-btn" title="Jak korzystać ze strony (klawisz ?)" aria-label="Pomoc">?</button>
       <button type="button" class="icon-btn" id="theme-toggle" title="Jasny / ciemny motyw" aria-label="Przełącz motyw"></button>
     </div>
   </header>
+
+  <div class="help-overlay" id="help" hidden>
+    <div class="help-box" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <div class="help-head">
+        <h2 id="help-title">Jak korzystać ze strony</h2>
+        <button type="button" class="btn-close" id="help-close">Zamknij <kbd>Esc</kbd></button>
+      </div>
+      <div class="help-body">
+        <section>
+          <h3>Co tu znajdziesz</h3>
+          <ul>
+            <li><b>Ścieżka</b> – lekcje 1–16: składnia Kotlina porównana z C i Pythonem.</li>
+            <li><b>Obiektowo</b> – lekcje 17–26: klasy, dziedziczenie, interfejsy i inne; Kotlin obok Javy, a C++ i Python w okienkach „Dla porównania”.</li>
+            <li><b>Ściąga</b> – wyszukiwarka: wpisz, co znasz z C, Pythona lub Javy (np. <code>printf</code>, <code>static</code>), a zobaczysz odpowiednik w Kotlinie.</li>
+            <li><b>Przykłady z wykładów</b> (na dole menu) – kod ze slajdów gotowy do uruchomienia. Przycisk „▶ uruchom” na slajdzie prowadzi prosto do danego przykładu.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Lekcja</h3>
+          <ul>
+            <li>„Porównuj z” w nagłówku wybiera, czy obok Kotlina widać C, Pythona, czy oba (tylko w lekcjach 1–16).</li>
+            <li>„Co się zmienia” i „Pułapki” zbierają najważniejsze różnice; „Spróbuj sam” to krótkie ćwiczenie z oczekiwanym wynikiem i rozwiązaniem.</li>
+            <li>„Przerobione” zaznacza lekcję w menu (✓). Postęp i ustawienia zapamiętuje tylko Twoja przeglądarka.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Edytor Kotlina</h3>
+          <ul>
+            <li>Kod można zmieniać i uruchamiać zielonym przyciskiem ▶; wynik pojawia się pod kodem lub obok niego.</li>
+            <li>Podpowiedzi pojawiają się podczas pisania; <kbd>Ctrl</kbd>+<kbd>Spacja</kbd> wywołuje je ręcznie.</li>
+            <li>Gdy przykład korzysta z kodu z innych slajdów, ten kod jest ukryty nad przykładem – rozwiniesz go przyciskiem w górnej części edytora.</li>
+            <li>Uruchamianie i podpowiedzi wymagają internetu (kompilator działa na serwerze kotlinlang.org).</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Powiększanie i czcionka</h3>
+          <ul>
+            <li><b>⤢</b> na ramce z kodem pokazuje ją na całym ekranie; ponowne kliknięcie (⤡), „Zamknij” albo <kbd>Esc</kbd> przywraca poprzedni widok.</li>
+            <li>„Pełny ekran” nad porównaniem kodu pokazuje wszystkie języki naraz. Na pasku wybierzesz widok (np. „Tylko Kotlin”), proporcje kolumn i rozmiar czcionki; granice kolumn można przeciągać, a zwinięty panel rozwija się kliknięciem.</li>
+            <li>Na pełnym ekranie czcionka sama dopasowuje się do okna (np. na rzutniku); <b>A−</b> / <b>A+</b> ją poprawia. Wynik ma zawsze ten sam rozmiar co kod.</li>
+            <li>Przycisk ☾ / ☀ w nagłówku przełącza jasny i ciemny motyw.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Skróty klawiszowe</h3>
+          <ul class="keys">
+            <li><kbd>?</kbd> – ta pomoc</li>
+            <li><kbd>Esc</kbd> – zamknięcie pełnego ekranu lub pomocy</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Spacja</kbd> – podpowiedzi w edytorze</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
 
   <div class="layout">
     <aside class="sidebar" aria-label="Lekcje">
@@ -51,43 +106,43 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://unpkg.com/kotlin-playground@1"></script>
   <script>window.LESSONS = [];</script>
-  <script src="content/lessons/01-hello.js?v=13"></script>
-  <script src="content/lessons/02-var-val.js?v=13"></script>
-  <script src="content/lessons/03-types.js?v=13"></script>
-  <script src="content/lessons/04-functions.js?v=13"></script>
-  <script src="content/lessons/05-if-expression.js?v=13"></script>
-  <script src="content/lessons/06-strings.js?v=13"></script>
-  <script src="content/lessons/07-booleans.js?v=13"></script>
-  <script src="content/lessons/08-while.js?v=13"></script>
-  <script src="content/lessons/09-looping-ranges.js?v=13"></script>
-  <script src="content/lessons/10-in.js?v=13"></script>
-  <script src="content/lessons/11-when.js?v=13"></script>
-  <script src="content/lessons/12-lists.js?v=13"></script>
-  <script src="content/lessons/13-null.js?v=13"></script>
-  <script src="content/lessons/14-maps-sets.js?v=13"></script>
-  <script src="content/lessons/15-lambdas.js?v=13"></script>
-  <script src="content/lessons/16-input.js?v=13"></script>
-  <script src="content/lessons/17-classes.js?v=13"></script>
-  <script src="content/lessons/18-constructors.js?v=13"></script>
-  <script src="content/lessons/19-visibility.js?v=13"></script>
-  <script src="content/lessons/20-exceptions.js?v=13"></script>
-  <script src="content/lessons/21-enums.js?v=13"></script>
-  <script src="content/lessons/22-data-classes.js?v=13"></script>
-  <script src="content/lessons/23-interfaces.js?v=13"></script>
-  <script src="content/lessons/24-inheritance.js?v=13"></script>
-  <script src="content/lessons/25-sealed.js?v=13"></script>
-  <script src="content/lessons/26-objects.js?v=13"></script>
+  <script src="content/lessons/01-hello.js?v=14"></script>
+  <script src="content/lessons/02-var-val.js?v=14"></script>
+  <script src="content/lessons/03-types.js?v=14"></script>
+  <script src="content/lessons/04-functions.js?v=14"></script>
+  <script src="content/lessons/05-if-expression.js?v=14"></script>
+  <script src="content/lessons/06-strings.js?v=14"></script>
+  <script src="content/lessons/07-booleans.js?v=14"></script>
+  <script src="content/lessons/08-while.js?v=14"></script>
+  <script src="content/lessons/09-looping-ranges.js?v=14"></script>
+  <script src="content/lessons/10-in.js?v=14"></script>
+  <script src="content/lessons/11-when.js?v=14"></script>
+  <script src="content/lessons/12-lists.js?v=14"></script>
+  <script src="content/lessons/13-null.js?v=14"></script>
+  <script src="content/lessons/14-maps-sets.js?v=14"></script>
+  <script src="content/lessons/15-lambdas.js?v=14"></script>
+  <script src="content/lessons/16-input.js?v=14"></script>
+  <script src="content/lessons/17-classes.js?v=14"></script>
+  <script src="content/lessons/18-constructors.js?v=14"></script>
+  <script src="content/lessons/19-visibility.js?v=14"></script>
+  <script src="content/lessons/20-exceptions.js?v=14"></script>
+  <script src="content/lessons/21-enums.js?v=14"></script>
+  <script src="content/lessons/22-data-classes.js?v=14"></script>
+  <script src="content/lessons/23-interfaces.js?v=14"></script>
+  <script src="content/lessons/24-inheritance.js?v=14"></script>
+  <script src="content/lessons/25-sealed.js?v=14"></script>
+  <script src="content/lessons/26-objects.js?v=14"></script>
   <script>window.WYKLADY = [];</script>
-  <script src="content/wyklady/I.js?v=13"></script>
-  <script src="content/wyklady/IIa.js?v=13"></script>
-  <script src="content/wyklady/IIb.js?v=13"></script>
-  <script src="content/wyklady/IIIa.js?v=13"></script>
-  <script src="content/wyklady/IIIb.js?v=13"></script>
-  <script src="content/wyklady/III_cd.js?v=13"></script>
-  <script src="content/wyklady/IVa.js?v=13"></script>
-  <script src="content/wyklady/IVb.js?v=13"></script>
-  <script src="content/wyklady/V.js?v=13"></script>
-  <script src="content/wyklady/VI.js?v=13"></script>
-  <script src="assets/app.js?v=13"></script>
+  <script src="content/wyklady/I.js?v=14"></script>
+  <script src="content/wyklady/IIa.js?v=14"></script>
+  <script src="content/wyklady/IIb.js?v=14"></script>
+  <script src="content/wyklady/IIIa.js?v=14"></script>
+  <script src="content/wyklady/IIIb.js?v=14"></script>
+  <script src="content/wyklady/III_cd.js?v=14"></script>
+  <script src="content/wyklady/IVa.js?v=14"></script>
+  <script src="content/wyklady/IVb.js?v=14"></script>
+  <script src="content/wyklady/V.js?v=14"></script>
+  <script src="content/wyklady/VI.js?v=14"></script>
+  <script src="assets/app.js?v=14"></script>
 </body>
 </html>
