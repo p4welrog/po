@@ -333,6 +333,14 @@ body.dragging, body.dragging * { cursor: col-resize !important; user-select: non
 .example.focus { margin: 0; }
 .example.focus .panel-body { flex: 1; min-height: 0; overflow: auto; }
 .example.focus .CodeMirror { min-height: calc(100vh - 190px); }
+/* pełny ekran: wynik uruchomienia obok kodu, a nie pod nim */
+.example.focus .executable-fragment, .exercise.focus .executable-fragment {
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start;
+}
+.example.focus .run-button, .exercise.focus .run-button { right: calc(40% + 10px) !important; }
+.example.focus .js-code-output-executor, .exercise.focus .js-code-output-executor {
+  position: sticky; top: 0; max-height: calc(100vh - 190px); overflow: auto; border-left: 1px solid var(--line);
+}
 .lesson-meta .seg-label { color: var(--muted); }
 .example.target { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent), var(--shadow-hover); }
 
@@ -411,7 +419,6 @@ body.dragging, body.dragging * { cursor: col-resize !important; user-select: non
 .exercise.focus .editor-frame { flex: 1 0 auto; }
 /* zmaksymalizowany edytor Kotlina wypełnia wysokość okna */
 .exercise.focus .editor-frame .CodeMirror { min-height: calc(100vh - 400px); }
-.code-zone.focus .panel.kt .CodeMirror { min-height: calc(100vh - 210px); }
 
 /* ---------- dół lekcji ---------- */
 .lesson-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -484,6 +491,9 @@ body.dragging, body.dragging * { cursor: col-resize !important; user-select: non
   .progress { margin-left: 0; }
   .code-zone.focus, .exercise.focus, .extra-box.focus, .example.focus { inset: 0; border-radius: 0; }
   .example.focus .CodeMirror { min-height: 0; }
+  .example.focus .executable-fragment, .exercise.focus .executable-fragment { display: block; }
+  .example.focus .js-code-output-executor, .exercise.focus .js-code-output-executor { position: static; max-height: none; border-left: 0; }
+  .example.focus .run-button, .exercise.focus .run-button { right: 10px !important; }
   .code-zone.focus .compare-grid { flex-direction: column; overflow-y: auto; padding: 10px; gap: 10px; }
   .code-zone.focus .panel { flex: none !important; min-height: 0; }
   .code-zone.focus .panel-body { overflow: visible; }
