@@ -128,11 +128,11 @@ fun main() {
 fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
-        { n: 9, section: "Konstruktory", slide: "Przykład z wieloma konstruktorami", mode: "frag", lesson: "constructors",
+        { n: 9, section: "Konstruktory", slide: "Przykład z wieloma konstruktorami", mode: "decl", lesson: "constructors",
           code: `enum class Material { Ceramic, Metal, Plastic }
 
 class GardenItem(val name: String) {
-    var material: Material = Plastic
+    var material: Material = Material.Plastic
 
     constructor(name: String, material: Material)
         : this(name) {
@@ -141,6 +141,10 @@ class GardenItem(val name: String) {
 
     constructor(material: Material)
         : this("Strange Thing", material)
+}
+
+fun main() {
+    // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 10, section: "Konstruktory", slide: "Domyślne argumenty zamiast przeciążania", mode: "run", lesson: "constructors",
           code: `class Point(val x: Int = 0, val y: Int = 0)
@@ -295,8 +299,13 @@ class Square(side: Int) : Rectangle(side, side) {
 fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
-        { n: 22, section: "Dziedziczenie i inicjalizacja klasy bazowej", slide: "LSP -- dlaczego `Square : Rectangle` łamie zasadę", mode: "wrap", lesson: "inheritance",
-          code: `open class Rectangle(open var width: Int, open var height: Int) {
+        { n: 22, section: "Dziedziczenie i inicjalizacja klasy bazowej", slide: "LSP – dlaczego `Square : Rectangle` łamie zasadę", mode: "wrap", lesson: "inheritance",
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+open class Rectangle(open var width: Int, open var height: Int) {
     fun area() = width * height
 }
 class Square(side: Int) : Rectangle(side, side) {
@@ -410,7 +419,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 29, section: "Klasy abstrakcyjne", slide: "Hierarchia klas abstrakcyjnych", mode: "decl", lesson: "inheritance",
-          code: `abstract class BeverageContainer(val name: String) {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+abstract class BeverageContainer(val name: String) {
     protected var quantity: Int = 100
 
     abstract fun open(): String
@@ -455,7 +469,7 @@ class Actual(override val ch: Char) : Parent {
 fun main() {
 Actual('A').g()  // "ch = A; f() = 17"
 }` },
-        { n: 31, section: "Klasy abstrakcyjne", slide: "Wzorzec Metoda szablonowa (_Template Method_)", mode: "decl", lesson: "inheritance",
+        { n: 31, section: "Klasy abstrakcyjne", slide: "Wzorzec Metoda szablonowa (Template Method)", mode: "decl", lesson: "inheritance",
           code: `abstract class Exporter {
     // metoda szablonowa (domyślnie final)
     fun export(rows: List<List<String>>): String =
@@ -480,8 +494,13 @@ class HtmlExporter : Exporter() {
 fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
-        { n: 32, section: "Klasy abstrakcyjne", slide: "Metoda szablonowa -- po co?", mode: "wrap", lesson: "inheritance",
-          code: `abstract class Exporter {
+        { n: 32, section: "Klasy abstrakcyjne", slide: "Metoda szablonowa – po co?", mode: "wrap", lesson: "inheritance",
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+abstract class Exporter {
     // metoda szablonowa (domyślnie final)
     fun export(rows: List<List<String>>): String =
         header() + rows.joinToString("") { row(it) } + footer()
@@ -527,7 +546,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 34, section: "Rzutowanie w górę (upcasting)", slide: "Wykorzystanie rzutowania w górę", mode: "run", lesson: "inheritance",
-          code: `interface Shape {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Shape {
     fun draw(): String
     fun erase(): String
 }
@@ -557,9 +581,21 @@ fun main() {
     // Show: Triangle.draw
 }
 //sampleEnd` },
-        { n: 35, section: "Rzutowanie w górę (upcasting)", slide: "Utrata informacji przy rzutowaniu w górę", mode: "frag", lesson: "inheritance",
-          code: `class Circle : Shape {
+        { n: 35, section: "Rzutowanie w górę (upcasting)", slide: "Utrata informacji przy rzutowaniu w górę", mode: "run", lesson: "inheritance",
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Shape {
+    fun draw(): String
+    fun erase(): String
+}
+
+//sampleStart
+class Circle : Shape {
     override fun draw() = "Circle.draw"
+    override fun erase() = "Circle.erase"
     fun radius() = 5.0  // specyficzna dla Circle
 }
 
@@ -572,7 +608,8 @@ fun main() {
     val circle = Circle()
     circle.radius()  // OK - widzimy typ Circle
     processShape(circle)  // rzutowanie w górę do Shape
-}` },
+}
+//sampleEnd` },
         { n: 36, section: "Rzutowanie w górę (upcasting)", slide: "Rzutowanie w górę w kolekcjach", mode: "run", lesson: "inheritance",
           code: `interface Pet {
     fun speak(): String
@@ -594,13 +631,36 @@ fun main() {
     // Meow
     // Woof!
 }` },
-        { n: 37, section: "Rzutowanie w górę (upcasting)", slide: "Wariancja: czy `List<Circle>` to `List<Shape>`?", mode: "frag", lesson: "inheritance",
-          code: `val circles: List<Circle> = listOf(Circle(), Circle())
+        { n: 37, section: "Rzutowanie w górę (upcasting)", slide: "Wariancja: czy `List<Circle>` to `List<Shape>`?", mode: "wrap", lesson: "inheritance",
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Shape {
+    fun draw(): String
+    fun erase(): String
+}
+class Square : Shape {
+    override fun draw() = "Square.draw"
+    override fun erase() = "Square.erase"
+}
+class Circle : Shape {
+    override fun draw() = "Circle.draw"
+    override fun erase() = "Circle.erase"
+    fun radius() = 5.0  // specyficzna dla Circle
+}
+
+fun main() {
+//sampleStart
+val circles: List<Circle> = listOf(Circle(), Circle())
 val shapes: List<Shape> = circles              // OK
 
 val mCircles: MutableList<Circle> = mutableListOf(Circle())
 // val mShapes: MutableList<Shape> = mCircles  // błąd kompilacji!
-// mShapes.add(Square())                       // ...bo to by zepsuło listę kół` },
+// mShapes.add(Square())                       // ...bo to by zepsuło listę kół
+//sampleEnd
+}` },
         { n: 38, section: "Rzutowanie w górę (upcasting)", slide: "Wariancja: `out` i `in`", mode: "decl", lesson: "inheritance",
           code: `interface Producer<out T> { fun produce(): T }        // T tylko na wyjściu
 interface Consumer<in T>  { fun consume(item: T) }    // T tylko na wejściu
@@ -688,7 +748,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 45, section: "Polimorfizm", slide: "Złożony przykład: gra fantasy (2)", mode: "decl", lesson: "inheritance",
-          code: `abstract class Character(val name: String) {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+abstract class Character(val name: String) {
     abstract fun play(): String
 }
 interface Fighter {
@@ -716,7 +781,12 @@ fun main() {
 }
 //sampleEnd` },
         { n: 46, section: "Polimorfizm", slide: "Polimorficzne wywołania", mode: "run", lesson: "inheritance",
-          code: `abstract class Character(val name: String) {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+abstract class Character(val name: String) {
     abstract fun play(): String
 }
 interface Fighter {
@@ -750,12 +820,37 @@ fun main() {
     // FightingElf: Magic!Fight!
 }
 //sampleEnd` },
-        { n: 47, section: "Polimorfizm", slide: "Problem: sprawdzanie typów zamiast polimorfizmu", mode: "frag", lesson: "inheritance",
-          code: `fun turn(shape: Shape): String = when(shape) {
+        { n: 47, section: "Polimorfizm", slide: "Problem: sprawdzanie typów zamiast polimorfizmu", mode: "decl", lesson: "inheritance",
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Shape {
+    fun draw(): String
+    fun erase(): String
+}
+class Square : Shape {
+    override fun draw() = "Square.draw"
+    override fun erase() = "Square.erase"
+}
+class Circle : Shape {
+    override fun draw() = "Circle.draw"
+    override fun erase() = "Circle.erase"
+    fun radius() = 5.0  // specyficzna dla Circle
+}
+
+//sampleStart
+fun turn(shape: Shape): String = when(shape) {
     is Circle -> "Circle: Rotate"
     is Square -> "Square: Rotate"
     else -> ""
-}` },
+}
+
+fun main() {
+    // tu możesz wypróbować kod ze slajdu
+}
+//sampleEnd` },
         { n: 48, section: "Polimorfizm", slide: "Problem: sprawdzanie typów zamiast polimorfizmu", mode: "decl", lesson: "inheritance",
           code: `interface Shape {
     fun turn(): String
@@ -770,7 +865,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 49, section: "Polimorfizm", slide: "Polimorfizm a rozszerzalność", mode: "run", lesson: "inheritance",
-          code: `interface Shape {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Shape {
     fun turn(): String
 }
 class Circle : Shape { override fun turn() = "Circle: Rotate" }
@@ -848,7 +948,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 54, section: "Kompozycja", slide: "Podstawowy przykład kompozycji", mode: "decl", lesson: null,
-          code: `interface Building
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+interface Building
 interface Kitchen
 
 //sampleStart
@@ -883,7 +988,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 56, section: "Kompozycja", slide: "Samochód jako kompozycja", mode: "run", lesson: null,
-          code: `class Engine {
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+class Engine {
     fun start() = println("Engine start")
     fun stop() = println("Engine stop")
 }
@@ -957,8 +1067,24 @@ fun main() {
     val service = Service(ConsoleLogger())
     service.process("data")
 }` },
-        { n: 60, section: "Kompozycja", slide: "Strategia z lambdą", mode: "frag", lesson: null,
-          code: `class Service(private val log: (String) -> Unit) {
+        { n: 60, section: "Kompozycja", slide: "Strategia z lambdą", mode: "run", lesson: null,
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+fun process(animal: Animal) { }
+fun Cat.sound() = "Meow"
+open class Pet {
+    open fun speak() = "Pet"
+}
+class Cat : Pet() {
+    override fun speak() = "Meow"
+}
+open class Animal { open fun sound() = "..." }
+
+//sampleStart
+class Service(private val log: (String) -> Unit) {
     fun process(data: String) {
         log("Processing: $data")
     }
@@ -967,8 +1093,9 @@ fun main() {
 fun main() {
     Service { println(it) }.process("a")            // na konsolę
     Service { File("log.txt").appendText(it) }.process("b")  // do pliku
-}` },
-        { n: 61, section: "Kompozycja", slide: "Wzorzec Polecenie (_Command_)", mode: "frag", lesson: null,
+}
+//sampleEnd` },
+        { n: 61, section: "Kompozycja", slide: "Wzorzec Polecenie (Command)", mode: "frag", lesson: null,
           code: `interface Command {
     val label: String
     fun execute()
@@ -984,7 +1111,12 @@ class ListProductsCommand(private val service: ProductService) : Command {
     override fun execute() = service.all().forEach(::println)
 }` },
         { n: 62, section: "Kompozycja", slide: "Polecenie: menu z obiektów", mode: "decl", lesson: null,
-          code: `fun Cat.sound() = "Meow"
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+fun Cat.sound() = "Meow"
 open class Pet {
     open fun speak() = "Pet"
 }
@@ -1024,7 +1156,7 @@ val items = listOf(
     MenuItem("Wyczyść ekran") { repeat(30) { println() } },
 )
 items[0].action()      // wykonanie polecenia` },
-        { n: 64, section: "Kompozycja", slide: "Wzorzec Repozytorium (_Repository_)", mode: "decl", lesson: null,
+        { n: 64, section: "Kompozycja", slide: "Wzorzec Repozytorium (Repository)", mode: "decl", lesson: null,
           code: `data class Product(val id: Int, val name: String)
 
 interface ProductRepository {        // „kolekcja” obiektów domenowych
@@ -1046,7 +1178,12 @@ fun main() {
     // tu możesz wypróbować kod ze slajdu
 }` },
         { n: 65, section: "Kompozycja", slide: "Repozytorium: warstwy aplikacji", mode: "wrap", lesson: null,
-          code: `data class Product(val id: Int, val name: String)
+          code: `import java.io.File
+import kotlin.math.*
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+data class Product(val id: Int, val name: String)
 interface ProductRepository {        // „kolekcja” obiektów domenowych
     fun findById(id: Int): Product?
     fun findAll(): List<Product>
